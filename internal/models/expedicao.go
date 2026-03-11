@@ -5,34 +5,52 @@ import (
 	"database/sql"
 	"errors"
 	"strings"
-	"time"
 )
 
 var Expedicoes []Expedicao
-var proximoID = 1
+
+// var proximoID = 1
 var Erro string = ""
 
 type Expedicao struct {
-	ID          int       `json:"id"`
-	Nome        string    `json:"nome"`
-	Navio       string    `json:"navio"`
-	Capitao     string    `json:"capitao"`
-	Data_inicio time.Time `json:"data_inicio"`
-	Status      string    `json:"status"`
+	ID          int    `json:"id"`
+	Nome        string `json:"nome"`
+	Navio       string `json:"navio"`
+	Capitao     string `json:"capitao"`
+	Data_inicio string `json:"data_inicio"`
+	Status      string `json:"status"`
 }
 
-func CriarEx(nome, navio, capitao string) Expedicao {
+func CriarEx(nome, navio, capitao string, data_inicio string) Expedicao {
 	nova := Expedicao{
-		ID:          proximoID,
 		Nome:        nome,
 		Navio:       navio,
 		Capitao:     capitao,
-		Data_inicio: time.Now(),
+		Data_inicio: data_inicio,
 		Status:      "Preparando Motores",
 	}
 	Expedicoes = append(Expedicoes, nova)
-	proximoID++
+	//proximoID++
 	return nova
+}
+
+func ListagemGeral(db *sql.DB) ([]Expedicao, error) {
+	rows, err := db.Query("Select id, nome, navio, capitao, data_inicio, status FROM expedicoes")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var lista []Expedicao
+
+	for rows.Next() {
+		var e Expedicao
+		err := rows.Scan(&e.ID, &e.Nome, &e.Navio, &e.Capitao, &e.Data_inicio, &e.Status)
+		if err != nil {
+			return nil, err
+		}
+		lista = append(lista, e)
+	}
+	return lista, nil
 }
 
 func (e *Expedicao) Valida() error {
