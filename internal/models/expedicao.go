@@ -55,18 +55,18 @@ func ListagemGeral(db *sql.DB) ([]Expedicao, error) {
 
 func (e *Expedicao) Valida() error {
 	if strings.TrimSpace(e.Nome) == "" {
-		return errors.New("nome da expedição obrigatório")
 		Erro = "Erro no Nome"
+		return errors.New("nome da expedição obrigatório")
 	}
 
 	if strings.TrimSpace(e.Navio) == "" {
-		return errors.New("nome do navio obrigatório")
 		Erro = "Erro no Navio"
+		return errors.New("nome do navio obrigatório")
 	}
 
 	if strings.TrimSpace(e.Capitao) == "" {
-		return errors.New("capitão obrigatório")
 		Erro = "Erro no Capitao"
+		return errors.New("capitão obrigatório")
 	}
 
 	return nil
