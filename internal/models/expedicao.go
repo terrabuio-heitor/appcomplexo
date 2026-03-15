@@ -56,7 +56,6 @@ func ListagemGeral(db *sql.DB) ([]Expedicao, error) {
 func ExcluirEx(db *sql.DB, id int) error {
 	query := `DELETE FROM expedicoes WHERE id = ?`
 	resultado, err := db.Exec(query, id)
-
 	if err != nil {
 		return err
 	}
@@ -71,8 +70,8 @@ func (e *Expedicao) AlterarEx(db *sql.DB) error {
 	if err := e.Valida(); err != nil {
 		return err
 	}
-	query := `UPDATE FROM expedicoes SET nome = ?, navio = ?, capitao = ?, status = ? where id = ?`
-	_, err := db.Exec(query, e.Nome, e.Capitao, e.Status, e.ID)
+	query := `UPDATE expedicoes SET nome = ?, navio = ?, capitao = ?, status = ? where id = ?`
+	_, err := db.Exec(query, e.Nome, e.Capitao, e.Navio, e.Status, e.ID)
 	if err != nil {
 		return err
 	}

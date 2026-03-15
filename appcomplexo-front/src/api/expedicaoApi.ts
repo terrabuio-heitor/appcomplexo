@@ -1,6 +1,8 @@
 import type { Expedicao } from "../types/Expedicao"
 
-const API = "http://localhost:8080/expedicao"
+//const API = "http://127.0.0.1:8080/expedicao/"//local
+//const API = "http://26.134.22.30:8080/expedicao/"//radmin
+const API ="http://100.99.231.15:8080/expedicao/"//tailscale
 
 export const getExpedicoes = async () => {
   const res = await fetch(API)
@@ -18,13 +20,13 @@ export const criarExpedicao = async (expedicao: Expedicao) => {
 }
 
 export const deletarExpedicao = async (id: number) => {
-  await fetch(`${API}/${id}`, {
+  await fetch(`${API}${id}`, {
     method: "DELETE"
   })
 }
 
 export const atualizarExpedicao = async (expedicao: Expedicao) => {
-  await fetch(`${API}/${expedicao.id}`, {
+  await fetch(`${API}${expedicao.id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json"

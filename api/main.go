@@ -13,7 +13,8 @@ func main() {
 	sql.Connet()
 
 	// 2. Define a rota e aponta para o handler
-	http.HandleFunc("/expedicao", handlers.ExpedicaoHandler)
+	//http.HandleFunc("/expedicao", handlers.ExpedicaoHandler)
+	http.HandleFunc("/expedicao/", handlers.ExpedicaoHandler)
 
 	log.Println("🚢 Navio ancorado na porta :8080")
 	http.ListenAndServe(":8080", nil)
