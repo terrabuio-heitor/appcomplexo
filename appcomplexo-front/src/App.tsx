@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard"
 import Eventos from "./pages/Eventos"
 import ExpedicaoDetalhe from "./pages/ExpedicaoDetalhe"
 import Navbar from "./components/Navbar"
+import Tripulantes from "./pages/Tripulantes"
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/eventos" element={<Eventos />} />
         <Route path="/expedicao/:id" element={<ExpedicaoDetalhe />} />
+        <Route path="/tripulantes/" element={<Tripulantes />}/>
       </Routes>
 
     </BrowserRouter>

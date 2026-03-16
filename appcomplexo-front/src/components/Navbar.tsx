@@ -28,6 +28,10 @@ export default function Navbar() {
           <Link to="/eventos" className={linkClass("/eventos")}>
             Eventos
           </Link>
+
+          <Link to="/tripulantes" className={linkClass("/tripulantes")}>
+            Tripulantes
+          </Link>
         </nav>
 
       </div>
