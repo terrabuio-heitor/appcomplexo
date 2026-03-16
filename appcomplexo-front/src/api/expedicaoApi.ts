@@ -2,9 +2,9 @@ import type { Expedicao } from "../types/Expedicao"
 import { handleApiError, handleNetworkError } from "../utils/errorHandler"
 import type { AppError } from "../utils/errorHandler"
 
-//const API = "http://127.0.0.1:8080/expedicao/"//local
+const API = "http://127.0.0.1:8080/expedicao/"//local
 //const API = "http://26.134.22.30:8080/expedicao/"//radmin
-const API ="http://100.99.231.15:8080/expedicao/"//tailscale
+//const API ="http://100.99.231.15:8080/expedicao/"//tailscale
 
 export const getExpedicoes = async (): Promise<Expedicao[] | AppError> => {
   try {
