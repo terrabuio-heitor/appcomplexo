@@ -2,9 +2,9 @@ import type { Tripulante } from "../types/Tripulantes"
 import { handleApiError, handleNetworkError } from "../utils/errorHandler"
 import type { AppError } from "../utils/errorHandler"
 
-const API = "http://127.0.0.1:8080/expedicao/"//local
-//const API = "http://26.134.22.30:8080/expedicao/"//radmin
-//const API = "http://100.99.231.15:8080/tripulante/" // tailscale
+const API = "http://127.0.0.1:8080/tripulantes/"//local
+//const API = "http://26.134.22.30:8080/tripulantes/"//radmin
+//const API = "http://100.99.231.15:8080/tripulantes/" // tailscale
 
 export const getTripulantes = async (): Promise<Tripulante[] | AppError> => {
   try {
