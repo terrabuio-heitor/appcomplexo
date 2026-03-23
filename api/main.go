@@ -16,6 +16,7 @@ func main() {
 	//http.HandleFunc("/expedicao", handlers.ExpedicaoHandler)
 	http.HandleFunc("/expedicao/", handlers.ExpedicaoHandler)
 	http.HandleFunc("/eventos/", handlers.EventosHandler)
+	http.HandleFunc("/tripulantes/", handlers.TripulacaoHandler)
 
 	log.Println("🚢 Navio ancorado na porta :8080")
 	http.ListenAndServe(":8080", nil)

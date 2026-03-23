@@ -1,7 +1,7 @@
 export type Tripulante = {
   id?: number;
   nome: string;
-  funcao: string; // Ex: Imediato, Cozinheiro, Artilheiro
-  experiencia: 'Novato' | 'Veterano' | 'Lenda';
+  cargo: string; // Ex: Imediato, Cozinheiro, Artilheiro
+  experiencia: string,//'Novato' | 'Veterano' | 'Lenda';
   expedicao_id?: number; // Chave estrangeira para ligar à expedição
 }

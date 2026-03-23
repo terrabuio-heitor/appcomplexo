@@ -67,7 +67,7 @@ export default function Tripulantes() {
           <div key={t.id} className="flex justify-between items-center p-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-indigo-300 transition-all">
             <div>
               <p className="font-bold text-slate-800">{t.nome}</p>
-              <p className="text-xs text-indigo-600 font-medium uppercase tracking-wider">{t.funcao}</p>
+              <p className="text-xs text-indigo-600 font-medium uppercase tracking-wider">{t.cargo}</p>
             </div>
             <button 
               onClick={() => t.id && remover(t.id)}

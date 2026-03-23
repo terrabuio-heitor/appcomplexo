@@ -29,26 +29,59 @@ func CriarTripulante(nome, cargo, experiencia string, expedicaoID int) Tripulant
 }
 
 func (tripu Tripulante) SalvarNoBanco(db *sql.DB) error {
-	query := `INSERT INTO tripulantes nome, cargo, experiencia, expedicao_id values ?, ? ,? , ?`
+	query := `INSERT INTO tripulantes nm_tripulante, ds_cargo, ds_experiencia, expedicaoID values ?, ? ,? , ?`
 	_, err := db.Exec(query, tripu.Nome, tripu.Cargo, tripu.Experiencia, tripu.ExpedicaoID)
 	return err
 }
 
-func ListagemTripulantes(db *sql.DB) ([]Tripulante error) {
-	linha, err := db.Querry(`SELECT nome, cargo, expedicao_id, experiencia FROM tripulantes`)
-	if err != nil{
-		return err
+func ListagemTripulantes(db *sql.DB) ([]Tripulante, error) {
+	linha, err := db.Query(`SELECT nm_tripulante, ds_cargo, expedicaoID, ds_experiencia FROM tripulantes`)
+	if err != nil {
+		return nil, err
 	}
-	defer db.Close()
-	var listaTemp[] Tripulante
-
-	for linha.Next(){
+	var listaTemp []Tripulante
+	defer linha.Close()
+	for linha.Next() {
 		var t Tripulante
-		err := t.Scan(&t.Nome,,&t.Cargo,& t.ExpedicaoID, &t.Experiencia)
-		if err!= nil {
-			return nil
+		err := linha.Scan(&t.Nome, &t.Cargo, &t.ExpedicaoID, &t.Experiencia)
+		if err != nil {
+			return nil, err
 		}
 		listaTemp = append(listaTemp, t)
 	}
-	return listaTemp,nil
+	return listaTemp, nil
+}
+
+func ExcluirTripu(db *sql.DB, id int) error {
+	query := `DELETE FROM tripulantes WHERE id = ? AND nm_tripulante != 'Chuck Norris' AND id!=1`
+	if id == 1 {
+		return errors.New("Chuck Norris deletaria você antes disso acontecer.")
+	}
+
+	resultado, err := db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	linhasAfetadas, err := resultado.RowsAffected()
+	if linhasAfetadas == 0 {
+		return errors.New("Nenhuma tripulante encontrado com ID")
+	}
+	return nil
+}
+
+func (t *Tripulante) Valida() error {
+	if strings.TrimSpace(t.Nome) == "" {
+		Erro = "Erro no Nome"
+		return errors.New("nome do tripulante obrigatório")
+	}
+
+	if strings.TrimSpace(t.Cargo) == "" {
+		t.Cargo = "Marinheiro"
+	}
+
+	if strings.TrimSpace(t.Experiencia) == "" {
+		t.Cargo = "Iniciante"
+	}
+
+	return nil
 }
