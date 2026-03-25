@@ -1,0 +1,7 @@
+# Define que tudo dentro da pasta frontend é "vendored" (código de terceiros/suporte)
+# Isso remove esses arquivos das estatísticas de linguagem do GitHub
+appcomplexo-front/** linguist-vendored=true
+
+# Opcional: Se você tiver pastas de bibliotecas ou builds no front
+appcomplexo-front/node_modules/** linguist-vendored=true
+appcomplexo-front/builds/** linguist-vendored=true
