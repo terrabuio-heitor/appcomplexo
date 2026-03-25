@@ -30,7 +30,7 @@ export default function ExpedicaoForm({ onSave, initial }: Props) {
       navio,
       capitao,
       // Mantendo campos que possam vir do initial (como data ou status)
-      data_inicio: initial?.data_inicio || new Date().toLocaleDateString('pt-BR'),
+      data_inicio: initial?.data_inicio || new Date().toISOString(),//new Date().toLocaleDateString('pt-BR'),
       
 
       status: initial?.status || "Planejada"

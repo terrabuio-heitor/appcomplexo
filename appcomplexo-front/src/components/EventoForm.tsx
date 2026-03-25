@@ -46,7 +46,7 @@ export default function EventoForm({ onSave, initial }: Props) {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+    const dataISO = new Date(data).toISOString()
     if (exID === 0 || !tipoEvento) {
       alert("Selecione a expedição e o tipo de evento!")
       return
@@ -56,7 +56,7 @@ export default function EventoForm({ onSave, initial }: Props) {
       id: initial?.id,
       descricao: detalhes, // Os detalhes escritos vão para o campo descricao
       tipo: tipoEvento,    // O item selecionado vai para o campo tipo
-      data: data,
+      data: dataISO,
       exID: exID
     })
 

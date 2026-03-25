@@ -4,19 +4,20 @@ import (
 	"database/sql"
 	"errors"
 	"strings"
+	"time"
 )
 
 var Eventos []Evento
 
 type Evento struct {
-	ID          int    `json:"id"`
-	Descricao   string `json:"descricao"`
-	Tipo        string `json:"tipo"`
-	Data        string `json:"data"`
-	ExpedicaoID int    `json:"expedicao_id"`
+	ID          int       `json:"id"`
+	Descricao   string    `json:"descricao"`
+	Tipo        string    `json:"tipo"`
+	Data        time.Time `json:"data"`
+	ExpedicaoID int       `json:"expedicao_id"`
 }
 
-func CriarEvento(descricao, tipo, data string, expedicao_id int) Evento {
+func CriarEvento(descricao, tipo string, data time.Time, expedicao_id int) Evento {
 	novaEv := Evento{
 		Descricao:   descricao,
 		Tipo:        tipo,
@@ -57,10 +58,10 @@ func (e *Evento) Valida() error {
 		return errors.New("tipo do evento obrigatório")
 	}
 
-	if strings.TrimSpace(e.Data) == "" {
-		//Erro = "Erro no data"
-		return errors.New("data obrigatória")
-	}
+	//if strings.TrimSpace(e.Data) == "" {
+	//Erro = "Erro no data"
+	//	return errors.New("data obrigatória")
+	//}
 
 	return nil
 }
@@ -69,7 +70,7 @@ func (e *Evento) AlterarEv(db *sql.DB) error {
 	if err := e.Valida(); err != nil {
 		return err
 	}
-	query := `UPDATE eventos SET descricao = ?, tipo = ?, data = ?, expedicao_id = ? where id = ?`
+	query := `UPDATE eventos SET descricao = $1, tipo = $2, data = $3, expedicao_id = $4 where id = $5`
 	_, err := db.Exec(query, e.Descricao, e.Tipo, e.Data, e.ExpedicaoID, e.ID)
 	if err != nil {
 		return err
@@ -78,7 +79,7 @@ func (e *Evento) AlterarEv(db *sql.DB) error {
 }
 
 func ExcluirEv(db *sql.DB, id int) error {
-	query := `DELETE FROM eventos WHERE id = ?`
+	query := `DELETE FROM eventos WHERE id = $1`
 	resultado, err := db.Exec(query, id)
 	if err != nil {
 		return err
@@ -92,7 +93,7 @@ func ExcluirEv(db *sql.DB, id int) error {
 
 // db
 func (e *Evento) SalvarNoBanco(db *sql.DB) error {
-	query := `INSERT INTO eventos (descricao, tipo, data, expedicao_id) VALUES (?, ?, ?, ?)`
+	query := `INSERT INTO eventos (descricao, tipo, data, expedicao_id) VALUES ($1, $2, $3, $4)`
 
 	_, err := db.Exec(query, e.Descricao, e.Tipo, e.Data, e.ExpedicaoID)
 	return err

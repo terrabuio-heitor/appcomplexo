@@ -4,5 +4,5 @@ export type Expedicao = {
   navio: string
   capitao: string
   status: string
-  data_inicio: string
+  data_inicio: Date
 }

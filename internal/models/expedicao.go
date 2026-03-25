@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"strings"
+	"time"
 )
 
 var Expedicoes []Expedicao
@@ -13,15 +14,16 @@ var Expedicoes []Expedicao
 var Erro string = ""
 
 type Expedicao struct {
-	ID          int    `json:"id"`
-	Nome        string `json:"nome"`
-	Navio       string `json:"navio"`
-	Capitao     string `json:"capitao"`
-	Data_inicio string `json:"data_inicio"`
-	Status      string `json:"status"`
+	ID      int    `json:"id"`
+	Nome    string `json:"nome"`
+	Navio   string `json:"navio"`
+	Capitao string `json:"capitao"`
+	//Data_inicio string `json:"data_inicio"`
+	Data_inicio time.Time `json:"data_inicio"`
+	Status      string    `json:"status"`
 }
 
-func CriarEx(nome, navio, capitao string, data_inicio string) Expedicao {
+func CriarEx(nome, navio, capitao string, data_inicio time.Time) Expedicao {
 	nova := Expedicao{
 		Nome:        nome,
 		Navio:       navio,
@@ -54,7 +56,7 @@ func ListagemGeral(db *sql.DB) ([]Expedicao, error) {
 }
 
 func ExcluirEx(db *sql.DB, id int) error {
-	query := `DELETE FROM expedicoes WHERE id = ?`
+	query := `DELETE FROM expedicoes WHERE id = $1`
 	resultado, err := db.Exec(query, id)
 	if err != nil {
 		return err
@@ -70,8 +72,8 @@ func (e *Expedicao) AlterarEx(db *sql.DB) error {
 	if err := e.Valida(); err != nil {
 		return err
 	}
-	query := `UPDATE expedicoes SET nome = ?, navio = ?, capitao = ?, status = ? where id = ?`
-	_, err := db.Exec(query, e.Nome, e.Capitao, e.Navio, e.Status, e.ID)
+	query := `UPDATE expedicoes SET nome = $1, navio = $2, capitao = $3, status = $4 WHERE id = $5`
+	_, err := db.Exec(query, e.Nome, e.Navio, e.Capitao, e.Status, e.ID)
 	if err != nil {
 		return err
 	}
@@ -98,7 +100,10 @@ func (e *Expedicao) Valida() error {
 }
 
 func (e *Expedicao) SalvarNoBanco(db *sql.DB) error {
-	query := `INSERT INTO expedicoes (nome, navio, capitao, data_inicio, status) VALUES (?, ?, ?, ?, ?)`
+	query := `INSERT INTO expedicoes 
+	(nome, navio, capitao, data_inicio, status) 
+	VALUES ($1, $2, $3, $4, $5)`
+	//para voltar a usar o SQLite tem que colocar ? em vez do $1
 
 	_, err := db.Exec(query, e.Nome, e.Navio, e.Capitao, e.Data_inicio, e.Status)
 	return err
