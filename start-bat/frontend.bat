@@ -1,3 +1,3 @@
 cd .. 
 cd appcomplexo-front
-npm run dev
+npm run dev -- --host

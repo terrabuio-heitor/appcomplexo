@@ -2,9 +2,25 @@ import type { Tripulante } from "../types/Tripulantes"
 import { handleApiError, handleNetworkError } from "../utils/errorHandler"
 import type { AppError } from "../utils/errorHandler"
 
-const API = "http://127.0.0.1:8080/tripulantes/"//local
+//const API = "http://127.0.0.1:8080/tripulantes/"//local
 //const API = "http://26.134.22.30:8080/tripulantes/"//radmin
 //const API = "http://100.99.231.15:8080/tripulantes/" // tailscale
+
+const getBaseURL = (): string => {
+    const hostname = window.location.hostname;
+
+    // Se estiver no PC local (ou via loopback)
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+        return "http://127.0.0.1:8080";
+    }
+
+    // Se estiver acessando via rede (Tailscale, Radmin ou IP Local)
+    // O window.location.hostname retornará automaticamente o IP que você usou no navegador
+    return `http://${hostname}:8080`;
+};
+
+export const API = `${getBaseURL()}/tripulantes/`;
+
 
 export const getTripulantes = async (): Promise<Tripulante[] | AppError> => {
   try {
