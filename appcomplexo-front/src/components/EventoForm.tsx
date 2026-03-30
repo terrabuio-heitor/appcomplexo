@@ -1,23 +1,22 @@
 import { useState, useEffect } from "react"
-import type { Evento } from "../types/Evento"
+//import type { Evento } from "../types/Evento"
 import type { Expedicao } from "../types/Expedicao"
 import { getExpedicoes } from "../api/expedicaoApi"
+import type { Evento, EventoInput } from "../types/Evento"
 
 type Props = {
-  onSave: (evento: Evento) => void
+  onSave: (evento: EventoInput) => void
   initial?: Evento
 }
 
 export default function EventoForm({ onSave, initial }: Props) {
-  // Estados do formulário
   const [tipoEvento, setTipoEvento] = useState(initial?.tipo || "")
   const [detalhes, setDetalhes] = useState(initial?.descricao || "")
-  const [data, setData] = useState(initial?.data || "")
-  const [exID, setExID] = useState<number>(initial?.exID || 0)
-  
+  const [data, setData] = useState("")
+  const [exID, setExID] = useState<number>(initial?.expedicaoId || 0)
+
   const [expedicoes, setExpedicoes] = useState<Expedicao[]>([])
 
-  // Lista de tipos pré-definidos que você pediu
   const tiposPredefinidos = [
     "🌊 Tempestade no Atlântico",
     "🐙 Avistamento de criatura marinha",
@@ -29,35 +28,44 @@ export default function EventoForm({ onSave, initial }: Props) {
     "🧭 Desvio de rota"
   ]
 
+  // 🔥 carregar expedições
   useEffect(() => {
     getExpedicoes().then(res => {
       if (Array.isArray(res)) setExpedicoes(res)
     })
   }, [])
 
-  useEffect(() => {
-    if (initial) {
-      setTipoEvento(initial.tipo || "")
-      setDetalhes(initial.descricao || "")
-      setData(initial.data || "")
-      setExID(initial.exID || 0)
+  // 🔥 corrigido: preencher TODOS os campos no edit
+useEffect(() => {
+  if (initial) {
+    setTipoEvento(initial.tipo || "")
+    setDetalhes(initial.descricao || "")
+
+    if (initial.data) {
+      const d = new Date(initial.data)
+      setData(d.toISOString().split("T")[0])
     }
-  }, [initial])
+
+    setExID(initial.expedicaoId || 0)
+  }
+}, [initial])
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
-    const dataISO = new Date(data).toISOString()
+
     if (exID === 0 || !tipoEvento) {
       alert("Selecione a expedição e o tipo de evento!")
       return
     }
 
+    const dataISO = new Date(data).toISOString()
+
     onSave({
       id: initial?.id,
-      descricao: detalhes, // Os detalhes escritos vão para o campo descricao
-      tipo: tipoEvento,    // O item selecionado vai para o campo tipo
-      data: dataISO,
-      exID: exID
+      descricao: detalhes,
+      tipo: tipoEvento,
+      data,
+      expedicao_id: exID
     })
 
     if (!initial) {
@@ -72,8 +80,9 @@ export default function EventoForm({ onSave, initial }: Props) {
     <form onSubmit={submit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        {/* COLUNA 1: Seleção do que aconteceu */}
+        {/* COLUNA 1 */}
         <div className="flex flex-col gap-4">
+
           <div className="flex flex-col gap-1">
             <label className="text-xs font-bold text-slate-500 uppercase ml-1">Ocorrência</label>
             <select
@@ -100,7 +109,9 @@ export default function EventoForm({ onSave, initial }: Props) {
             >
               <option value={0}>Selecione a expedição...</option>
               {expedicoes.map(ex => (
-                <option key={ex.id} value={ex.id}>⚓ ID: {ex.id} - {ex.nome || 'Sem nome'}</option>
+                <option key={ex.id} value={ex.id}>
+                  ⚓ ID: {ex.id} - {ex.nome || 'Sem nome'}
+                </option>
               ))}
             </select>
           </div>
@@ -115,9 +126,10 @@ export default function EventoForm({ onSave, initial }: Props) {
               required
             />
           </div>
+
         </div>
 
-        {/* COLUNA 2: Detalhes Escritos */}
+        {/* COLUNA 2 */}
         <div className="flex flex-col gap-1">
           <label className="text-xs font-bold text-slate-500 uppercase ml-1">Relato do Capitão (Detalhes)</label>
           <textarea

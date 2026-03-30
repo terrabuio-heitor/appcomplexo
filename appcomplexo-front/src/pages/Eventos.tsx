@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import type { Evento } from "../types/Evento"
+import type { Evento, EventoInput } from "../types/Evento"
 import EventoForm from "../components/EventoForm"
 import { getEventos, criarEvento, deletarEvento, atualizarEvento } from "../api/eventoApi"
 
@@ -14,7 +14,7 @@ export default function Eventos() {
 
   useEffect(() => { carregarDados() }, [])
 
-  const salvar = async (evento: Evento) => {
+  const salvar = async (evento: EventoInput) => {
     if (evento.id) {
       await atualizarEvento(evento)
     } else {
@@ -70,11 +70,11 @@ export default function Eventos() {
                     "{e.descricao}"
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-500 font-mono">
-                    {e.data}
+                    {e.data.toLocaleDateString("pt-BR")}
                   </td>
                   <td className="px-6 py-4">
                     <span className="text-sm font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded">
-                      ⚓ {e.exID || (e as any).expedicao_id}
+                      ⚓ {e.expedicaoId}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">

@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// 1. Liga o banco de dados
-	sql.Connet()
+	sql.Connect()
 
 	// 2. Define a rota e aponta para o handler
 	//http.HandleFunc("/expedicao", handlers.ExpedicaoHandler)

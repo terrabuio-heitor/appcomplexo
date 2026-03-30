@@ -1,6 +1,8 @@
-import type { Evento } from "../types/Evento"
+//import type { Evento } from "../types/Evento"
 import { handleApiError, handleNetworkError } from "../utils/errorHandler"
 import type { AppError } from "../utils/errorHandler"
+import { toEvento, toEventoDTO } from "../mappers/eventoMapper"
+import type { Evento, EventoInput } from "../types/Evento"
 
 //const API = "http://127.0.0.1:8080/eventos/"//local
 //const API = "http://26.134.22.30:8080/eventos/"//radmin
@@ -27,24 +29,24 @@ export const getEventos = async (): Promise<Evento[] | AppError> => {
   try {
     const res = await fetch(API)
     if (!res.ok) return await handleApiError(res)
-    return await res.json()
+
+    const data = await res.json()
+    return data.map(toEvento)
   } catch (e) {
     return handleNetworkError(e)
   }
 }
 
-export const criarEvento = async (evento: Evento): Promise<void | AppError> => {
+export const criarEvento = async (input: EventoInput): Promise<void | AppError> => {
   try {
+    const dto = toEventoDTO(input)
+
     const res = await fetch(API, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        descricao: evento.descricao,
-        data: evento.data,
-        expedicao_id: evento.exID, // Mapeia exID para expedicao_id que o Go espera
-        tipo: evento.tipo // O Go pede o campo Tipo
-      })
+      body: JSON.stringify(dto)
     })
+
     if (!res.ok) return await handleApiError(res)
   } catch (e) {
     return handleNetworkError(e)
@@ -60,19 +62,16 @@ export const deletarEvento = async (id: number): Promise<void | AppError> => {
   }
 }
 
-export const atualizarEvento = async (evento: Evento): Promise<void | AppError> => {
+export const atualizarEvento = async (input: EventoInput): Promise<void | AppError> => {
   try {
-    const res = await fetch(`${API}${evento.id}`, {
+    const dto = toEventoDTO(input)
+
+    const res = await fetch(`${API}${dto.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: evento.id, // O Go precisa do ID no corpo também para o Bind
-        descricao: evento.descricao,
-        data: evento.data,
-        expedicao_id: Number(evento.exID), // Tradução para o banco
-        tipo: evento.tipo
-      })
+      body: JSON.stringify(dto)
     })
+
     if (!res.ok) return await handleApiError(res)
   } catch (e) {
     return handleNetworkError(e)
