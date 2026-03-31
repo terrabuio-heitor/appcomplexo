@@ -12,7 +12,7 @@ import (
 
 func main() {
 	// 1. Liga o banco de dados
-	sql.Connect()
+	//sql.Connect()
 	db := sql.Conectar()
 
 	//Expedição

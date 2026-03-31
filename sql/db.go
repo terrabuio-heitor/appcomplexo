@@ -20,41 +20,42 @@ func Conectar() *sql.DB { // Adicione o tipo de retorno aqui
 
 	// Opcional: atribuir à global se você ainda a usa
 	DB = db
-
+	CriarTabelas()
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Erro ao conectar no banco:", err)
+	}
 	return db // Retorne o valor explicitamente
 }
 
-func Connect() {
-	var err error
-	DB, err = sql.Open("postgres", connStr)
-	//DB, err = sql.Open("sqlite", "./sql/database.db")
+func CriarTabelas() {
+	queriesCriação := []string{
+		//navio
+		`CREATE TABLE IF NOT EXISTS navios (
+		id SERIAL PRIMARY KEY,
+		nome TEXT NOT NULL,
+		tipo TEXT,
+		capacidade_tripulacao INT,
+		capacidade_carga INT,
+		velocidade INT,
+		resistencia INT,
+		ano_fabricacao INT,
+		status TEXT
+		);`,
 
-	if err != nil {
-		log.Fatal("Erro ao abrir o banco", err)
-	}
-
-	//--era para funfar no SQLite mas nem nele funfava:
-	// statement, _ := DB.Prepare(`CREATE TABLE IF NOT EXISTS expedicoes (
-	//     id INTEGER PRIMARY KEY AUTOINCREMENT,
-	//     nome TEXT,
-	//     navio TEXT,
-	//     capitao TEXT,
-	//     data_inicio DATETIME,
-	//     status TEXT
-	// )`)
-	// statement.Exec()
-	//main tabela
-	statement, _ := DB.Prepare(`CREATE TABLE expedicoes (
+		//expedicao
+		`CREATE TABLE IF NOT EXISTS expedicoes (
 		id SERIAL PRIMARY KEY,
 		nome TEXT,
-		navio TEXT,
+		navio_id INT,
 		capitao TEXT,
 		data_inicio DATE,
-		status TEXT
-	);`)
-	statement.Exec()
-	//eventos
-	statement, _ = DB.Prepare(`CREATE TABLE eventos (
+		status TEXT,
+
+		FOREIGN KEY (navio_id) REFERENCES navios(id) ON DELETE SET NULL
+		);`,
+		//eventos
+		`CREATE TABLE IF NOT EXISTS eventos (
 		id SERIAL PRIMARY KEY,
 		tipo TEXT NOT NULL,
 		descricao TEXT,
@@ -65,51 +66,66 @@ func Connect() {
 			FOREIGN KEY (expedicao_id)
 			REFERENCES expedicoes(id)
 			ON DELETE CASCADE
-		);`)
-	statement.Exec()
-	//tripulantes
-	statement, _ = DB.Prepare(`CREATE TABLE tripulantes (
+		);`, 
+		//tripulantes
+		`CREATE TABLE IF NOT EXISTS tripulantes (
 		id SERIAL PRIMARY KEY,
 		nome TEXT NOT NULL,
-		cargo TEXT NOT NULL,
-		expedicao_id INT NOT NULL,
-		
-		CONSTRAINT fk_expedicao
-			FOREIGN KEY (expedicao_id)
-			REFERENCES expedicoes(id)
-			ON DELETE CASCADE
-	);`)
-	statement.Exec()
-	//monstros
-	statement, _ = DB.Prepare(`CREATE TABLE monstros (
+		cargo TEXT NOT NULL
+		);`,
+		//bestiário
+		`CREATE TABLE IF NOT EXISTS monstros (
 		id SERIAL PRIMARY KEY,
 		nome TEXT NOT NULL,
 		nivel_perigo INT,
 		descricao TEXT
-	);`)
-	statement.Exec()
-
-	//n para n Montros Eventos
-	statement, _ = DB.Prepare(`CREATE TABLE evento_monstro (
+		);`,
+		//evento-mostro
+		`CREATE TABLE IF NOT EXISTS evento_monstro (
 		id SERIAL PRIMARY KEY,
 		evento_id INT NOT NULL,
 		monstro_id INT NOT NULL,
 
 		FOREIGN KEY (evento_id) REFERENCES eventos(id) ON DELETE CASCADE,
-		FOREIGN KEY (monstro_id) REFERENCES monstros(id) ON DELETE CASCADE
-	);`)
-	statement.Exec()
-	//recursos do navio
-	statement, _ = DB.Prepare(`CREATE TABLE recursos (
+		FOREIGN KEY (monstro_id) REFERENCES monstros(id) ON DELETE CASCADE,
+
+		CONSTRAINT unique_evento_monstro UNIQUE (evento_id, monstro_id)
+		);`,
+		//recursos
+		`CREATE TABLE IF NOT EXISTS recursos (
 		id SERIAL PRIMARY KEY,
 		nome TEXT NOT NULL,
 		quantidade INT NOT NULL,
 		expedicao_id INT NOT NULL,
 
 		FOREIGN KEY (expedicao_id) REFERENCES expedicoes(id) ON DELETE CASCADE
-	);`)
-	statement.Exec()
+		);`,
+		//tripulante-expedicao
+		`CREATE TABLE IF NOT EXISTS tripulante_expedicao (
+		id SERIAL PRIMARY KEY,
+		tripulante_id INT NOT NULL,
+		expedicao_id INT NOT NULL,
+		data_entrada DATE,
+		data_saida DATE,
+		ativo BOOLEAN DEFAULT true,
 
+		FOREIGN KEY (tripulante_id) REFERENCES tripulantes(id) ON DELETE CASCADE,
+		FOREIGN KEY (expedicao_id) REFERENCES expedicoes(id) ON DELETE CASCADE,
+
+		CONSTRAINT unique_tripulante_expedicao UNIQUE (tripulante_id, expedicao_id),
+
+		CONSTRAINT check_ativo_data_saida CHECK (
+		(ativo = true AND data_saida IS NULL)
+		OR
+		(ativo = false AND data_saida IS NOT NULL)
+		)
+		);`}
+	for _, q := range queriesCriação{
+	_, err := DB.Exec(q)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 	// statementINSERT, _ := DB.Prepare(`
 	// INSERT INTO expedicoes (id, nome, navio, capitao, data_inicio, status) VALUES
 	// (1, 'Atlantida', 'Lin Gau Yamamoto', 'HMS Britannic II', '2026-01-21', 'a começar'),
