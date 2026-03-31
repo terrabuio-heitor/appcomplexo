@@ -17,8 +17,8 @@ func NovaExpedicaoRepository(db *sql.DB) *ExpedicaoRepository {
 func (r *ExpedicaoRepository) SalvarNoBanco(e domain.Expedicao) error {
 	query := `INSERT INTO expedicoes 
 	(nome, navio, capitao, data_inicio, status) 
-	VALUES ($1, $2, $3, $4, $5) RETURN id`
-	return r.db.QueryRow(query, e.Navio, e.Capitao, e.Data_inicio, e.Status).Scan(&e.ID)
+	VALUES ($1, $2, $3, $4, $5) RETURNING id`
+	return r.db.QueryRow(query, e.Nome, e.Navio, e.Capitao, e.Data_inicio, e.Status).Scan(&e.ID)
 }
 
 func (r *ExpedicaoRepository) ListagemEx() ([]domain.Expedicao, error) {

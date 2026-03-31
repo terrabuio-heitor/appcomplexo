@@ -10,10 +10,22 @@ import (
 )
 
 var DB *sql.DB
+var connStr = "host=localhost port=5432 user=postgres password=admin dbname=appcomplexoDB sslmode=disable"
+
+func Conectar() *sql.DB { // Adicione o tipo de retorno aqui
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Opcional: atribuir à global se você ainda a usa
+	DB = db
+
+	return db // Retorne o valor explicitamente
+}
 
 func Connect() {
 	var err error
-	connStr := "host=localhost port=5432 user=postgres password=admin dbname=appcomplexoDB sslmode=disable"
 	DB, err = sql.Open("postgres", connStr)
 	//DB, err = sql.Open("sqlite", "./sql/database.db")
 

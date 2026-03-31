@@ -11,7 +11,7 @@ type ExpedicaoService struct {
 	repo *repository.ExpedicaoRepository
 }
 
-func NovoServico(repo *repository.ExpedicaoRepository) *ExpedicaoService {
+func NovoServicoEX(repo *repository.ExpedicaoRepository) *ExpedicaoService {
 	return &ExpedicaoService{repo: repo}
 }
 
@@ -42,7 +42,7 @@ func (s *ExpedicaoService) AlterarEX(e *domain.Expedicao) error {
 		return err
 	}
 
-	return s.AlterarEX(e)
+	return s.repo.AlterarEx(e)
 }
 
 func (s *ExpedicaoService) ExcluirEX(id int) error {

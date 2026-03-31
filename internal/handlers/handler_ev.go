@@ -1,53 +1,54 @@
 package handlers
 
 import (
-	"application-complexa/internal/models"
+	"application-complexa/internal/domain"
+	"application-complexa/internal/services"
 	"encoding/json"
+	"net/http"
 	"strconv"
 	"strings"
-
-	"application-complexa/sql"
-	//"internal/models"
-	"net/http"
 )
 
-func EventosHandler(w http.ResponseWriter, r *http.Request) {
+func (h *EventoHandler) habilitarCORS(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+}
 
+// construtores
+type EventoHandler struct {
+	service *services.EventoService
+}
+
+func NovaEventoHandler(s *services.EventoService) *EventoHandler {
+	return &EventoHandler{service: s}
+}
+
+//rest
+
+func (h *EventoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	h.habilitarCORS(w)
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 	switch r.Method {
-	case http.MethodGet:
-		GetEvento(w, r)
 	case http.MethodPost:
-		PostEvento(w, r)
-	case http.MethodPut:
-		PutEvento(w, r)
+		h.PostEvento(w, r)
+	case http.MethodGet:
+		h.GetEvento(w, r)
 	case http.MethodDelete:
-		DeleteEventos(w, r)
+		h.DeleteEvento(w, r)
+	case http.MethodPut:
+		h.PutEvento(w, r)
 	default:
-		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+		http.Error(w, "Metodo não permitido", http.StatusNotAcceptable)
 	}
 }
 
-// funcões do REST
-func GetEvento(w http.ResponseWriter, r *http.Request) {
-	lista, err := models.ListagemEventos(sql.DB)
-	if err != nil {
-		http.Error(w, "Erro ao buscar os Eventos: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(lista)
-	//return
-}
-
-func PostEvento(w http.ResponseWriter, r *http.Request) {
-	var nova models.Evento
+// REST
+func (h *EventoHandler) PostEvento(w http.ResponseWriter, r *http.Request) {
+	var nova domain.Evento
 	if err := json.NewDecoder(r.Body).Decode(&nova); err != nil {
 		http.Error(w, "JSON Inválido!!!", http.StatusBadRequest)
 		return
@@ -57,25 +58,36 @@ func PostEvento(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	//se passou pelas 2 verificações
-
-	resultado := models.CriarEvento(nova.Descricao, nova.Tipo, nova.Data, nova.ExpedicaoID)
-
-	err := resultado.SalvarNoBanco(sql.DB)
+	resultado, err := h.service.CriarEV(nova)
 	if err != nil {
-		http.Error(w, "Erro ao salvar no banco: "+err.Error(), http.StatusInternalServerError)
-		return
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resultado)
+	w.WriteHeader(http.StatusCreated)
 }
-func PutEvento(w http.ResponseWriter, r *http.Request) {
-	var ex models.Evento
+
+func (h *EventoHandler) GetEvento(w http.ResponseWriter, r *http.Request) {
+
+	lista, err := h.service.ListagemGeral()
+	if err != nil {
+		http.Error(w, "Erro ao buscar os eventos: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if lista == nil {
+		lista = []domain.Evento{}
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(lista)
+}
+
+func (h *EventoHandler) PutEvento(w http.ResponseWriter, r *http.Request) {
+	var ex domain.Evento
 	if err := json.NewDecoder(r.Body).Decode(&ex); err != nil {
 		http.Error(w, "JSON INVÁLIDO", http.StatusBadRequest)
 		return
 	}
-	err := ex.AlterarEv(sql.DB)
+	err := h.service.AlterarEv(&ex)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -83,7 +95,7 @@ func PutEvento(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func DeleteEventos(w http.ResponseWriter, r *http.Request) {
+func (h *EventoHandler) DeleteEvento(w http.ResponseWriter, r *http.Request) {
 	partPath := strings.Split(r.URL.Path, "/")
 	deletarID := partPath[len(partPath)-1]
 	//deletarID := r.URL.Query().Get("id")
@@ -92,9 +104,9 @@ func DeleteEventos(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ID é obrigatório para exclusão", http.StatusBadRequest)
 		return
 	}
-	err := models.ExcluirEv(sql.DB, id)
-	if err != nil {
+	if err := h.service.ExcluirEv(id); err != nil {
 		http.Error(w, "Erro ao excluir evento: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+	w.WriteHeader(http.StatusNoContent)
 }
