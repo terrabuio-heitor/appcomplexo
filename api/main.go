@@ -13,7 +13,6 @@ func main() {
 	sql.Connect()
 
 	// 2. Define a rota e aponta para o handler
-	//http.HandleFunc("/expedicao", handlers.ExpedicaoHandler)
 	http.HandleFunc("/expedicao/", handlers.ExpedicaoHandler)
 	http.HandleFunc("/eventos/", handlers.EventosHandler)
 	http.HandleFunc("/tripulantes/", handlers.TripulacaoHandler)
