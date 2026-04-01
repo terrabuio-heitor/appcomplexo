@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"application-complexa/internal/domain"
+	"application-complexa/internal/dto"
 	"application-complexa/internal/services"
 	"encoding/json"
 	"net/http"
@@ -48,10 +49,17 @@ func (h *EventoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // REST
 func (h *EventoHandler) PostEvento(w http.ResponseWriter, r *http.Request) {
-	var nova domain.Evento
-	if err := json.NewDecoder(r.Body).Decode(&nova); err != nil {
+	//var nova domain.Evento
+	var dto dto.EventoDTO
+
+	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
 		http.Error(w, "JSON Inválido!!!", http.StatusBadRequest)
 		return
+	}
+	nova := domain.Evento{
+		Tipo:        dto.Tipo,
+		Descricao:   dto.Descricao,
+		ExpedicaoID: dto.ExpedicaoID,
 	}
 
 	if err := nova.Valida(); err != nil {
@@ -61,9 +69,11 @@ func (h *EventoHandler) PostEvento(w http.ResponseWriter, r *http.Request) {
 	resultado, err := h.service.CriarEV(nova)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resultado)
+
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -82,10 +92,16 @@ func (h *EventoHandler) GetEvento(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *EventoHandler) PutEvento(w http.ResponseWriter, r *http.Request) {
-	var ex domain.Evento
-	if err := json.NewDecoder(r.Body).Decode(&ex); err != nil {
+	//var ex domain.Evento
+	var dto dto.EventoDTO
+	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
 		http.Error(w, "JSON INVÁLIDO", http.StatusBadRequest)
 		return
+	}
+	ex := domain.Evento{
+		Tipo:        dto.Tipo,
+		Descricao:   dto.Descricao,
+		ExpedicaoID: dto.ExpedicaoID,
 	}
 	err := h.service.AlterarEv(&ex)
 	if err != nil {

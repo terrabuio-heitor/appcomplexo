@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"application-complexa/internal/domain"
+	"application-complexa/internal/dto"
 	"application-complexa/internal/services"
 	"encoding/json"
 	"net/http"
@@ -44,10 +45,19 @@ func (h *ExpedicaoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ExpedicaoHandler) PostExpedicao(w http.ResponseWriter, r *http.Request) {
-	var nova domain.Expedicao
-	if err := json.NewDecoder(r.Body).Decode(&nova); err != nil {
+	//var nova domain.Expedicao
+	var dto dto.ExpedicaoDTO
+
+	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
 		http.Error(w, "JSON Inválido!!!", http.StatusBadRequest)
 		return
+	}
+
+	nova := domain.Expedicao{
+		Nome:    dto.Nome,
+		Navio:   dto.Navio,
+		Capitao: dto.Capitao,
+		Status:  dto.Status,
 	}
 
 	if err := nova.Valida(); err != nil {
@@ -57,10 +67,11 @@ func (h *ExpedicaoHandler) PostExpedicao(w http.ResponseWriter, r *http.Request)
 	resultado, err := h.service.CriarEX(nova)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resultado)
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(resultado)
 }
 
 func (h *ExpedicaoHandler) GetExpedicao(w http.ResponseWriter, r *http.Request) {
@@ -78,11 +89,20 @@ func (h *ExpedicaoHandler) GetExpedicao(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *ExpedicaoHandler) PutExpedicao(w http.ResponseWriter, r *http.Request) {
-	var ex domain.Expedicao
-	if err := json.NewDecoder(r.Body).Decode(&ex); err != nil {
+	//var ex domain.Expedicao
+	var dto dto.ExpedicaoDTO
+
+	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
 		http.Error(w, "JSON INVÁLIDO", http.StatusBadRequest)
 		return
 	}
+	ex := domain.Expedicao{
+		Nome:    dto.Nome,
+		Navio:   dto.Navio,
+		Capitao: dto.Capitao,
+		Status:  dto.Status,
+	}
+
 	err := h.service.AlterarEX(&ex)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -1,0 +1,1 @@
+go build -o AbyssLog.exe api/main.go
